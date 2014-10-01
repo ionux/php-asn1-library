@@ -1805,7 +1805,7 @@ class OID
                   $description = 'pkcs-12-SDSICertBagID (1 2 840 113549 1 12 4 2)';
                   break;
              case '06 09 2A 86 48 86 F7 0D 01 0C 05';
-                  #Comment = 'From PFX and reassigned to OIDs with incompatible algorithms.';
+                  $comment = 'From PFX and reassigned to OIDs with incompatible algorithms.';
                   $description = 'pkcs-12-OID (1 2 840 113549 1 12 5)';
                   break;
              case '06 0A 2A 86 48 86 F7 0D 01 0C 05 01';
