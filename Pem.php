@@ -15,54 +15,103 @@
  class Pem
  {
  
-     /* Tag classes
-#define CLASS_MASK		0xC0	/* Bits 8 and 7 */
-#define UNIVERSAL		0x00	/* 0 = Universal (defined by ITU X.680) */
-#define APPLICATION		0x40	/* 1 = Application */
-#define CONTEXT			0x80	/* 2 = Context-specific */
-#define PRIVATE			0xC0	/* 3 = Private */
+    /**
+     * Identifier octet bit masks 
+     *
+     * The identifier octets encode the ASN.1 tag (class and number) of the type of
+     * the data value. Its structure is defined as follows:
+     *     -----------------------------------------------
+     *    |  8  |  7  |  6  |  5  |  4  |  3  |  2  |  1  |
+     *     -----------------------------------------------
+     *    |   Class   | P/C |          Tag Number         |
+     *     -----------------------------------------------
+     *
+     *     Octet Mask Name    Hex Value
+     * ---------------------------------------------------------------------- */
+    const  CLASS_BITMASK     = '0xC0'
+    const  PC_BITMASK        = '0x20'
+    const  TAGNUM_BITMASK    = '0x1F'
 
-/* Encoding type */
+    
+    /**
+     * Class bits in a Type identifier octet
+     *
+     * Bit 8 and 7 of the identifier octet describe the class of the object.
+     * Note that some of the ASN.1 types can be encoded using either primitive
+     * or a constructed encoding at the option of the sender. The following
+     * values are possible:
+     *     Universal        - This type is native to ASN.1
+     *     Application      - This type is only valid for one specific application
+     *     Context-specific - The meaning of this type depends on the context
+     *     Private          - This type is defined in a private specification
+     *
+     *     Class Name         Hex Value      Bit 8  Bit 7
+     * ---------------------------------------------------------------------- */
+    const  UNIVERSAL         = '0x00'    //   0      0 
+    const  APPLICATION       = '0x40'    //   0      1
+    const  CONTEXT           = '0x80'    //   1      0
+    const  PRIVATE           = '0xC0'    //   1      1
 
-#define FORM_MASK		0x20	/* Bit 6 */
-#define PRIMITIVE		0x00	/* 0 = primitive */
-#define CONSTRUCTED		0x20	/* 1 = constructed */
 
-/* Universal tags */
+    /**
+     * Primitive/Constructed content type bits
+     *
+     * Bit 6 (P/C) states whether the content is primitive, like an INTEGER, or
+     * constructed, which means it holds further TLV values, like a SET.
+     *
+     *     Content Type       Hex Value     Bit 6
+     * ---------------------------------------------------------------------- */
+    const  PRIMITIVE         = '0x00'    //   0
+    const  CONSTRUCTED       = '0x20'    //   1
 
-#define TAG_MASK		0x1F	/* Bits 5 - 1 */
-#define EOC				0x00	/*  0: End-of-contents octets */
-#define BOOLEAN			0x01	/*  1: Boolean */
-#define INTEGER			0x02	/*  2: Integer */
-#define BITSTRING		0x03	/*  2: Bit string */
-#define OCTETSTRING		0x04	/*  4: Byte string */
-#define NULLTAG			0x05	/*  5: NULL */
-#define OID				0x06	/*  6: Object Identifier */
-#define OBJDESCRIPTOR	0x07	/*  7: Object Descriptor */
-#define EXTERNAL		0x08	/*  8: External */
-#define REAL			0x09	/*  9: Real */
-#define ENUMERATED		0x0A	/* 10: Enumerated */
-#define EMBEDDED_PDV	0x0B	/* 11: Embedded Presentation Data Value */
-#define UTF8STRING		0x0C	/* 12: UTF8 string */
-#define SEQUENCE		0x10	/* 16: Sequence/sequence of */
-#define SET				0x11	/* 17: Set/set of */
-#define NUMERICSTRING	0x12	/* 18: Numeric string */
-#define PRINTABLESTRING	0x13	/* 19: Printable string (ASCII subset) */
-#define T61STRING		0x14	/* 20: T61/Teletex string */
-#define VIDEOTEXSTRING	0x15	/* 21: Videotex string */
-#define IA5STRING		0x16	/* 22: IA5/ASCII string */
-#define UTCTIME			0x17	/* 23: UTC time */
-#define GENERALIZEDTIME	0x18	/* 24: Generalized time */
-#define GRAPHICSTRING	0x19	/* 25: Graphic string */
-#define VISIBLESTRING	0x1A	/* 26: Visible string (ASCII subset) */
-#define GENERALSTRING	0x1B	/* 27: General string */
-#define UNIVERSALSTRING	0x1C	/* 28: Universal string */
-#define BMPSTRING		0x1E	/* 30: Basic Multilingual Plane/Unicode string */
 
-/* Length encoding */
+    /**
+     * Universal Class Tags
+     *
+     * The remaining bits 5 to 1 contain the tag, which serves as the identifier
+     * of the type of the content. The following tags are native to ASN.1:
+     *
+     *     Tag Name           Hex Value      P/C    Dec Value
+     * ---------------------------------------------------------------------- */
+    const  END_OF_CONTENT    = '0x00'    //   P         0 
+    const  BOOLEAN           = '0x01'    //   P         1
+    const  INTEGER           = '0x02'    //   P         2
+    const  BIT_STRING        = '0x03'    //   P/C       3
+    const  OCTET_STRING      = '0x04'    //   P/C       4 
+    const  NULL              = '0x05'    //   P         5
+    const  OBJ_IDENTIFIER    = '0x06'    //   P         6 
+    const  OBJ_DESCRIPTOR    = '0x07'    //   P/C       7 
+    const  EXTERNAL          = '0x08'    //   C         8 
+    const  FLOAT             = '0x09'    //   P         9 
+    const  ENUMERATED        = '0x0A'    //   P        10 
+    const  EMBEDDED_PDV      = '0x0B'    //   C        11 
+    const  UTF8_STRING       = '0x0C'    //   P/C      12
+    const  RELATIVE_OID      = '0x0D'    //   P        13
+    const  RESERVED_A        = '0x0E'    //   -        14
+    const  RESERVED_B        = '0x0F'    //   -        15
+    const  SEQUENCE          = '0x10'    //   C        16
+    const  SET               = '0x11'    //   C        17
+    const  NUMERIC_STRING    = '0x12'    //   P/C      18
+    const  PRINTABLE_STRING  = '0x13'    //   P/C      19
+    const  T61_STRING        = '0x14'    //   P/C      20
+    const  VIDEOTEX_STRING   = '0x15'    //   P/C      21
+    const  IA5_STRING        = '0x16'    //   P/C      22
+    const  UTC_TIME          = '0x17'    //   P/C      23
+    const  GENERALIZED_TIME  = '0x18'    //   P/C      24
+    const  GRAPHIC_STRING    = '0x19'    //   P/C      25
+    const  VISIBLE_STRING    = '0x1A'    //   P/C      26
+    const  GENERAL_STRING    = '0x1B'    //   P/C      27
+    const  UNIVERSAL_STRING  = '0x1C'    //   P/C      28
+    const  CHARACTER_STRING  = '0x1D'    //   P/C      29
+    const  BMPSTRING         = '0x1E'    //   P/C      30
+    const  USE_LONG_FORM     = '0x1F'    //   -        31
 
-#define LEN_XTND  0x80		/* Indefinite or long form */
-#define LEN_MASK  0x7F		/* Bits 7 - 1 */
+
+    // Identifer tags greater than 30
+    // See: http://en.wikipedia.org/wiki/X.690
+    const  LEN_INDEF         = '0x80'    // Indefinite, or Long Form 
+    const  LEN_SHORT         = '0x7F'    // Definite, or Short Form 
+
 
     public function __construct()
     {
