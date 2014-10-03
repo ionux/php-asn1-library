@@ -133,10 +133,11 @@
 
         $ecpemstruct = array();
 
-        $pem_data = str_ireplace("\r", '', trim($pem_data));
-        $pem_data = str_ireplace("\n", '', trim($pem_data));
         $pem_data = str_ireplace($beg_ec_text, '', $pem_data);
         $pem_data = str_ireplace($end_ec_text, '', $pem_data);
+        $pem_data = str_ireplace("\r", '', trim($pem_data));
+        $pem_data = str_ireplace("\n", '', trim($pem_data));
+        $pem_data = str_ireplace(' ',  '', trim($pem_data));
 
         $decoded = bin2hex(base64_decode($pem_data));
 
@@ -145,9 +146,9 @@
         }
 
         $ecpemstruct = array(
-                             '*oct_sec_val'  => substr($decoded,14,64),
-                             '*obj_id_val'   => substr($decoded,86,10),
-                             '*bit_str_val'  => substr($decoded,106),
+                             'oct_sec_val'  => substr($decoded,14,64),
+                             'obj_id_val'   => substr($decoded,86,10),
+                             'bit_str_val'  => substr($decoded,106),
                        );
 
         if ($ecpemstruct['obj_id_val'] != '2b8104000a') {
@@ -176,17 +177,14 @@
     		throw new \Exception('Invalid or corrupt secp256k1 keypair provided. Cannot decode the supplied PEM data.');
     	}
 
-    	$beg_ec_text = '-----BEGIN EC PRIVATE KEY-----';
-    	$end_ec_text = '-----END EC PRIVATE KEY-----';
-
-    	$dec     = '';
-    	$byte    = '';
-    	$seq     = '';
-    	$decoded = '';
-
+    	$dec         = '';
+    	$byte        = '';
+    	$seq         = '';
+    	$decoded     = '';
+    	$beg_ec_text = '';
+    	$end_ec_text = '';
     	$ecpemstruct = array();
     	$digits      = array();
-    	$retval      = array();
 
     	for ($x = 0; $x < 256; $x++) {
     		$digits[$x] = chr($x);
@@ -210,10 +208,11 @@
     			'a1_ele_len'   => '44',
     			'bit_str_beg'  => '03',
     			'bit_str_len'  => '42',
-    			'bit_str_val'  => '00' . $keypair[1],
+    			'bit_str_val'  => '00'.$keypair[1],
     	);
 
-    	echo "\r\n" . implode($ecpemstruct) . "\r\n";
+    	$beg_ec_text = '-----BEGIN EC PRIVATE KEY-----';
+    	$end_ec_text = '-----END EC PRIVATE KEY-----';
 
     	$dec = trim(implode($ecpemstruct));
 
@@ -223,8 +222,6 @@
 
     	$dec = decodeHex('0x'.$dec);
 
-    	echo "\r\n Decimal conversion is: $dec \r\n";
-
     	while (gmp_cmp($dec, '0') > 0) {
     		$dv = gmp_div($dec, '256');
     		$rem = gmp_strval(gmp_mod($dec, '256'));
@@ -232,11 +229,7 @@
     		$byte = $byte.$digits[$rem];
     	}
 
-    	$byte = $beg_ec_text . base64_encode(strrev($byte)) . $end_ec_text;
-    	
-        // TODO Add string breakup here.
-        
-        echo "\r\nThe data looks like: $byte \r\n";
+    	$byte = $beg_ec_text . "\r\n" . chunk_splt(base64_encode(strrev($byte)), 64) . $end_ec_text;
 
     	return $byte;
     }
