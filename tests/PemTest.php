@@ -10,8 +10,7 @@
 
 namespace Tests;
 
-use \ANS1\Pem;
-use \ASN1\OID;
+use \ASN1\Pem;
 
 class PemTest extends \PHPUnit_Framework_TestCase
 {
