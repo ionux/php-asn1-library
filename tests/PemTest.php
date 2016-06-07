@@ -1,4 +1,12 @@
 <?php
+/**
+ * These tests are a work in progress. If you have ideas
+ * for additional or improved test cases, please submit
+ * a pull request.
+ *
+ * Thanks,
+ * Rich <rich@richmorgan.me>
+ */
 
 namespace ASN1;
 
@@ -56,3 +64,4 @@ class PemTest extends \PHPUnit_Framework_TestCase
     	// Ensure the PEM-encoded data matches the expected value
     	$this->assertEquals($data, $pemdata);
     }
+}
