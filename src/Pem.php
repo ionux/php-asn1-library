@@ -34,6 +34,8 @@ namespace ASN1;
  */
 final class Pem
 {
+    use \Phactor\Math;
+
     /**
      * Identifier octet bit masks 
      *
@@ -148,46 +150,150 @@ final class Pem
     public function pemDecode($pem_data = null)
     {
         if (empty($pem_data)) {
-            throw new \Exception('Invalid or corrupt secp256k1 key provided. Cannot decode the supplied PEM data.');
+            throw new \Exception('[ERROR] In Pem::pemDecode(): Empty or null key data provided to method.');
         }
 
-        $beg_ec_text = '-----BEGIN EC PRIVATE KEY-----';
-        $end_ec_text = '-----END EC PRIVATE KEY-----';
-        $decoded     = '';
-        $ecpemstruct = array();
+        // Public Key (PKCS#8) Tags:
+        $beg_pk_pub_text = '-----BEGIN PUBLIC KEY-----';
+        $end_pk_pub_text = '-----END PUBLIC KEY-----';
 
-        $pem_data = str_ireplace($beg_ec_text, '', $pem_data);
-        $pem_data = str_ireplace($end_ec_text, '', $pem_data);
+        /**
+         * Public Key (PKCS#8) DER Structure:
+         *
+         * PublicKeyInfo ::= SEQUENCE {
+         *     algorithm       AlgorithmIdentifier,
+         *     PublicKey       BIT STRING
+         * }
+         *
+         * AlgorithmIdentifier ::= SEQUENCE {
+         *     algorithm       OBJECT IDENTIFIER,
+         *     parameters      ANY DEFINED BY algorithm OPTIONAL
+         * }
+         */
+
+        // Private Key (PKCS#8) Tags:
+        $beg_pk_pri_text = '-----BEGIN PRIVATE KEY-----';
+        $end_pk_pri_text = '-----END PRIVATE KEY-----';
+
+        /**
+         * Private Key (PKCS#8) DER Structure:
+         *
+         * PrivateKeyInfo ::= SEQUENCE {
+         *     version         Version,
+         *     algorithm       AlgorithmIdentifier,
+         *     PrivateKey      BIT STRING
+         * }
+         *
+         * AlgorithmIdentifier ::= SEQUENCE {
+         *     algorithm       OBJECT IDENTIFIER,
+         *     parameters      ANY DEFINED BY algorithm OPTIONAL
+         * }
+         */
+
+        // RSA Public Key (PKCS#1) Tags:
+        $beg_rsa_pub_text = '-----BEGIN RSA PUBLIC KEY-----';
+        $end_rsa_pub_text = '-----END RSA PUBLIC KEY-----';
+
+        /**
+         * RSA Public Key (PKCS#1) DER Structure
+         *
+         * RSAPublicKey ::= SEQUENCE {
+         *     modulus           INTEGER,  -- n
+         *     publicExponent    INTEGER   -- e
+         * }
+         *
+         * RSA public key, the OID is 1.2.840.113549.1.1.1 &
+         * RSAPublicKey representing the PublicKey key data
+         * bitstring is present.
+         */
+
+        // RSA Private Key (PKCS#1) Tags:
+        $beg_rsa_pri_text = '-----BEGIN RSA PRIVATE KEY-----';
+        $end_rsa_pri_text = '-----END RSA PRIVATE KEY-----';
+
+        /**
+         * RSA Private Key (PKCS#1) DER Structure
+         *
+         * RSAPrivateKey ::= SEQUENCE {
+         *     version           Version,
+         *     modulus           INTEGER,  -- n
+         *     publicExponent    INTEGER,  -- e
+         *     privateExponent   INTEGER,  -- d
+         *     prime1            INTEGER,  -- p
+         *     prime2            INTEGER,  -- q
+         *     exponent1         INTEGER,  -- d mod (p-1)
+         *     exponent2         INTEGER,  -- d mod (q-1)
+         *     coefficient       INTEGER,  -- (inverse of q) mod p
+         *     otherPrimeInfos   OtherPrimeInfos OPTIONAL
+         * }
+         *
+         * RSA private key, the OID is 1.2.840.113549.1.1.1 &
+         * RSAPrivateKey representing the PrivateKey key data
+         * bitstring is present.
+         */
+
+        // Encrypted Private Key (PKCS#8) Tags:
+        $beg_enc_pk_pri_text = '-----BEGIN ENCRYPTED PRIVATE KEY-----';
+        $beg_enc_pk_pri_text = '-----END ENCRYPTED PRIVATE KEY-----';
+
+        /**
+         * Encrypted Private Key (PKCS#8) DER Structure:
+         *
+         * EncryptedPrivateKeyInfo ::= SEQUENCE {
+         *     encryptionAlgorithm  EncryptionAlgorithmIdentifier,
+         *     encryptedData        EncryptedData
+         * }
+         *
+         * EncryptionAlgorithmIdentifier ::= AlgorithmIdentifier
+         * EncryptedData ::= OCTET STRING
+         *
+         * EncryptedData OCTET STRING is a PKCS#8 PrivateKeyInfo.
+         */
+
+        // Elliptic Curve Private Key Tags:
+        $beg_ec_pri_text = '-----BEGIN EC PRIVATE KEY-----';
+        $end_ec_pri_text = '-----END EC PRIVATE KEY-----';
+
+        /**
+         * Elliptic Curve Private Key Structure:
+         * TODO - fill this in.
+         */
+
+        // Elliptic Curve Public Key Tags:
+        $beg_ec_pub_text = '-----BEGIN EC PUBLIC KEY-----';
+        $end_ec_pub_text = '-----END EC PUBLIC KEY-----';
+
+        /**
+         * Elliptic Curve Public Key Structure:
+         * TODO - fill this in.
+         */
+
+        $decoded     = '';
+        $pemstruct = array();
+
+        // TODO: Update this for more key tags:
+        // $pem_data = str_ireplace($beg_ec_text, '', $pem_data);
+        // $pem_data = str_ireplace($end_ec_text, '', $pem_data);
         $pem_data = str_ireplace("\r",         '', trim($pem_data));
         $pem_data = str_ireplace("\n",         '', trim($pem_data));
         $pem_data = str_ireplace(' ',          '', trim($pem_data));
 
         $decoded = bin2hex(base64_decode($pem_data));
 
-        if (strlen($decoded) < 230) {
-            throw new \Exception('Invalid or corrupt secp256k1 key provided. Cannot decode the supplied PEM data.');
-        }
-
-        $ecpemstruct = array(
+        $pemstruct = array(
                              'oct_sec_val'  => substr($decoded, 14, 64),
                              'obj_id_val'   => substr($decoded, 86, 10),
                              'bit_str_val'  => substr($decoded, 106),
                        );
 
-        if ($ecpemstruct['obj_id_val'] != '2b8104000a') {
-            throw new \Exception('Invalid or corrupt secp256k1 key provided. Cannot decode the supplied PEM data.');
-        }
-
-        $private_key = $ecpemstruct['oct_sec_val'];
-        $public_key  = $ecpemstruct['bit_str_val'];
-
-        if (strlen($private_key) < 64 || strlen($public_key) < 128) {
-            throw new \Exception('Invalid or corrupt secp256k1 key provided. Cannot decode the supplied PEM data.');
-        }
+        $private_key = $pemstruct['oct_sec_val'];
+        $public_key  = $pemstruct['bit_str_val'];
+        $object_id   = $pemstruct['obj_id_val'];
 
         return array(
-                     'private_key' => $private_key,
-                     'public_key'  => $public_key
+                     'private_key' => $pemstruct['oct_sec_val'],
+                     'public_key'  => $pemstruct['bit_str_val'],
+                     'object_id'   => $pemstruct['obj_id_val']
                );
     }
 
@@ -201,7 +307,7 @@ final class Pem
     public function pemEncode($keypair = null)
     {
     	if (empty($keypair) || (is_array($keypair) && (strlen($keypair[0]) < 64 || strlen($keypair[1]) < 128))) {
-    		throw new \Exception('Invalid or corrupt secp256k1 keypair provided. Cannot decode the supplied PEM data.');
+    		throw new \Exception('Invalid or corrupt keypair provided. Cannot decode the supplied PEM data.');
     	}
 
     	$dec         = '';
@@ -243,10 +349,10 @@ final class Pem
     	$dec         = trim(implode($ecpemstruct));
 
     	if (strlen($dec) < 230) {
-    		throw new \Exception('Invalid or corrupt secp256k1 keypair provided. Cannot encode the supplied data.');
+    		throw new \Exception('Invalid or corrupt keypair provided. Cannot encode the supplied data.');
     	}
 
-    	$dec = decodeHex('0x' . $dec);
+    	$dec = $this->decodeHex('0x' . $dec);
 
     	while (gmp_cmp($dec, '0') > 0) {
     		$dv   = gmp_div($dec, '256');
