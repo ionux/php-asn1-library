@@ -28,17 +28,17 @@ class PemTest extends \PHPUnit_Framework_TestCase
     	$pem = new Pem();
     	$this->assertNotNull($pem);
 
-    	$pem = $pkey->pemDecode($data);
-    	$this->assertNotNull($pem);
+    	$pkey = $pem->pemDecode($data);
+    	$this->assertNotNull($pkey);
 
     	// Ensure it's an array
-    	$this->assertInternalType('array', $pem);
+    	$this->assertInternalType('array', $pkey);
 
     	// Ensure the private key matches the expected value
-    	$this->assertEquals($private_key, $pem['private_key']);
+    	$this->assertEquals($private_key, $pkey['private_key']);
 
     	// Ensure the public key matches the expected value
-    	$this->assertEquals($public_key, $pem['public_key']);
+    	$this->assertEquals($public_key, $pkey['public_key']);
     }
 
     public function testPemEncode()
