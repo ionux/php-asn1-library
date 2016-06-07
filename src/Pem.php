@@ -361,7 +361,7 @@ final class Pem
     		$byte = $byte . $digits[$rem];
     	}
 
-    	return $beg_ec_text . "\r\n" . chunk_splt(base64_encode(strrev($byte)), 64) . $end_ec_text;
+    	return $beg_ec_text . "\r\n" . chunk_split(base64_encode(strrev($byte)), 64) . $end_ec_text;
     }
 
     /**
