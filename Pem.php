@@ -1,20 +1,19 @@
 <?php
 /**
- *  (c) 2014, Rich Morgan <rich.l.morgan@gmail.com>
- *
  *  Parses a PEM (base-64 encoded DER) file
  *
+ *  (c) 2014-2016, Rich Morgan <rich@richmorgan.me>
+ * 
  *  This code is released under the MIT License (MIT).
  *  See the LICENSE file for the complete text or 
  *  notify me if you did not receive a copy with this
  *  file.
  */
- 
- namespace ASN1;
- 
- class Pem
- {
- 
+
+namespace ASN1;
+
+final class Pem
+{
     /**
      * Identifier octet bit masks 
      *
@@ -31,7 +30,6 @@
     const  CLASS_BITMASK     = '0xC0'
     const  PC_BITMASK        = '0x20'
     const  TAGNUM_BITMASK    = '0x1F'
-
     
     /**
      * Class bits in a Type identifier octet
@@ -52,7 +50,6 @@
     const  CONTEXT           = '0x80'    //   1      0
     const  PRIVATE           = '0xC0'    //   1      1
 
-
     /**
      * Primitive/Constructed content type bits
      *
@@ -63,7 +60,6 @@
      * ---------------------------------------------------------------------- */
     const  PRIMITIVE         = '0x00'    //   0
     const  CONSTRUCTED       = '0x20'    //   1
-
 
     /**
      * Universal Class Tags
@@ -106,16 +102,14 @@
     const  BMPSTRING         = '0x1E'    //   P/C      30
     const  USE_LONG_FORM     = '0x1F'    //   -        31
 
-
     // Identifer tags greater than 30
     // See: http://en.wikipedia.org/wiki/X.690
     const  LEN_INDEF         = '0x80'    // Indefinite, or Long Form 
     const  LEN_SHORT         = '0x7F'    // Definite, or Short Form 
 
-
     public function __construct()
     {
-        // TODO
+        $this->checkExtensions();
     }
     
     /**
@@ -123,21 +117,24 @@
      *
      * @param  string $pem_data The data to decode.
      * @return array            The keypair info.
+     * @throws \Exception
      */
-    private function pemDecode($pem_data)
+    private function pemDecode($pem_data = null)
     {
+        if (empty($pem_data)) {
+            throw new \Exception('Invalid or corrupt secp256k1 key provided. Cannot decode the supplied PEM data.');
+        }
+
         $beg_ec_text = '-----BEGIN EC PRIVATE KEY-----';
         $end_ec_text = '-----END EC PRIVATE KEY-----';
-
-        $decoded = '';
-
+        $decoded     = '';
         $ecpemstruct = array();
 
         $pem_data = str_ireplace($beg_ec_text, '', $pem_data);
         $pem_data = str_ireplace($end_ec_text, '', $pem_data);
-        $pem_data = str_ireplace("\r", '', trim($pem_data));
-        $pem_data = str_ireplace("\n", '', trim($pem_data));
-        $pem_data = str_ireplace(' ',  '', trim($pem_data));
+        $pem_data = str_ireplace("\r",         '', trim($pem_data));
+        $pem_data = str_ireplace("\n",         '', trim($pem_data));
+        $pem_data = str_ireplace(' ',          '', trim($pem_data));
 
         $decoded = bin2hex(base64_decode($pem_data));
 
@@ -146,9 +143,9 @@
         }
 
         $ecpemstruct = array(
-                             'oct_sec_val'  => substr($decoded,14,64),
-                             'obj_id_val'   => substr($decoded,86,10),
-                             'bit_str_val'  => substr($decoded,106),
+                             'oct_sec_val'  => substr($decoded, 14, 64),
+                             'obj_id_val'   => substr($decoded, 86, 10),
+                             'bit_str_val'  => substr($decoded, 106),
                        );
 
         if ($ecpemstruct['obj_id_val'] != '2b8104000a') {
@@ -170,10 +167,11 @@
      *
      * @param  array  $keypair The keypair info.
      * @return string          The data to decode.
+     * @throws \Exception
      */
-    public function pemEncode($keypair)
+    public function pemEncode($keypair = null)
     {
-    	if (is_array($keypair) && (strlen($keypair[0]) < 64 || strlen($keypair[1]) < 128)) {
+    	if (empty($keypair) || (is_array($keypair) && (strlen($keypair[0]) < 64 || strlen($keypair[1]) < 128))) {
     		throw new \Exception('Invalid or corrupt secp256k1 keypair provided. Cannot decode the supplied PEM data.');
     	}
 
@@ -208,7 +206,7 @@
     			'a1_ele_len'   => '44',
     			'bit_str_beg'  => '03',
     			'bit_str_len'  => '42',
-    			'bit_str_val'  => '00'.$keypair[1],
+    			'bit_str_val'  => '00' . $keypair[1],
     	);
 
     	$beg_ec_text = '-----BEGIN EC PRIVATE KEY-----';
@@ -220,18 +218,29 @@
     		throw new \Exception('Invalid or corrupt secp256k1 keypair provided. Cannot encode the supplied data.');
     	}
 
-    	$dec = decodeHex('0x'.$dec);
+    	$dec = decodeHex('0x' . $dec);
 
     	while (gmp_cmp($dec, '0') > 0) {
-    		$dv = gmp_div($dec, '256');
-    		$rem = gmp_strval(gmp_mod($dec, '256'));
-    		$dec = $dv;
-    		$byte = $byte.$digits[$rem];
+    		$dv   = gmp_div($dec, '256');
+    		$rem  = gmp_strval(gmp_mod($dec, '256'));
+    		$dec  = $dv;
+    		$byte = $byte . $digits[$rem];
     	}
 
     	$byte = $beg_ec_text . "\r\n" . chunk_splt(base64_encode(strrev($byte)), 64) . $end_ec_text;
 
     	return $byte;
     }
-    
- }
+
+    /**
+     * Checks if the required extensions are loaded.
+     *
+     * @throws \Exception
+     */
+    private function checkExtensions()
+    {
+        if (!extension_loaded('gmp')) {
+            throw new \Exception('This class requires the GMP math extension for PHP. Please install this extension or ask your system administrator to install it for you.');
+        }
+    }
+}
