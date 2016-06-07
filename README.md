@@ -1,6 +1,6 @@
 php-asn1-library
 ================
-(c)2014, Rich Morgan <rich.l.morgan@gmail.com>
+(c)2014-2016, Rich Morgan <rich@richmorgan.me>
 
 This project aims to provide a complete PHP library for the encoding and decoding of ASN.1 DER encoded data.  The OID class provides for the identification of ASN.1 object identifiers.
 
