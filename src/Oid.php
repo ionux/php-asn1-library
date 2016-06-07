@@ -9,7 +9,7 @@
 
 namespace ASN1;
 
-final class OID
+final class Oid
 {
     public function checkOID($value = null)
     {
