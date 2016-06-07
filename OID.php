@@ -2,27 +2,23 @@
 /**
  *  ASN.1 Object Identifiers
  *
- *  (c) 2014 Rich Morgan <rich.l.morgan@gmail.com>
+ *  (c) 2014-2016, Rich Morgan <rich@richmorgan.me>
  *
  *  This code is released under the MIT License (MIT)
  */
 
 namespace ASN1;
 
-class OID
+final class OID
 {
-
-
-    public function checkOID($value)
+    public function checkOID($value = null)
     {
-
-        if (trim($value) != '') {
-            $OID = $value;
-        } else {
+        if (empty($value)) {
             throw new \Exception('Missing or invalid OID.');
         }
 
-        $comment = 'Comment not set...';
+        $OID         = trim($value);
+        $comment     = 'Comment not set...';
         $description = 'Description not set...';
 
         switch ($OID) {
@@ -6244,8 +6240,6 @@ class OID
                   throw new \Exception('Unknown object identifier.');
         }
 
-        return array($comment, $description);
-
+        return array('comment' => $comment, 'description' => $description);
     }
-
 }
