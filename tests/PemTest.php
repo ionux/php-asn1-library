@@ -8,7 +8,10 @@
  * Rich <rich@richmorgan.me>
  */
 
-namespace ASN1;
+namespace Tests;
+
+use \ANS1\Pem;
+use \ASN1\OID;
 
 class PemTest extends \PHPUnit_Framework_TestCase
 {
