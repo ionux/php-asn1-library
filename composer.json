@@ -1,0 +1,43 @@
+{
+    "name": "ionux/php-asn1-library",
+    "description": "This project aims to provide a complete PHP library for the encoding and decoding of ASN.1 DER encoded data.  The OID class provides for the identification of ASN.1 object identifiers.",
+    "keywords": ["asn.1","abstract","syntax","notation","der","ber","cer","cryptography","crypto","encryption","utility","algorithm","pem","oid","object","identifier","encoded","verify","generate","key","keys","math","library","encode","decode","identification","number","x.208","xer","per","protocol","hex","gmp","ionux","php","mit","open","source","free"],
+    "homepage": "https://github.com/ionux/php-asn1-library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Rich Morgan",
+            "email": "rich@richmorgan.me",
+            "role": "Creator and Lead Developer"
+        }
+    ],
+    "repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/ionux/php-asn1-library.git"
+		}
+	],
+    "support": {
+        "issues": "https://github.com/ionux/php-asn1-library/issues",
+        "email": "rich@richmorgan.me",
+        "source": "https://github.com/ionux/php-asn1-library"
+    },
+    "autoload": {
+        "psr-4": {
+            "ASN1\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ASN1\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.5.0",
+        "ext-gmp": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.1.3"
+    }
+}
