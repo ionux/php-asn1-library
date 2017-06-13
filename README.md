@@ -1,6 +1,6 @@
 PHP ASN.1 Encode/decode Utility Library
 ================
-(c) 2014-2016, Rich Morgan <rich@richmorgan.me>
+(c) 2014-2017, Rich Morgan <rich@richmorgan.me>
 
 This project aims to provide a complete PHP library for the encoding and decoding of ASN.1 DER encoded data.  The OID class provides for the identification of ASN.1 object identifiers.  See: https://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One
 
