@@ -3,7 +3,7 @@
  * This file is part of the PHP ASN.1 Library project. You can always find the
  * latest version of this class and project at: https://github.com/ionux/php-asn1-library
  *
- * Copyright (c) 2014-2018 Rich Morgan, rich@richmorgan.me
+ * Copyright (c) 2014-2019 Rich Morgan, rich@richmorgan.me
  *
  * The MIT License (MIT)
  *
