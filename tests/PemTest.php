@@ -22,8 +22,8 @@ class PemTest extends \PHPUnit_Framework_TestCase
                 'fAArmNMaGotTpjdnymWlMfszzXJhlw==' . "\r\n" .
     	        '-----END EC PRIVATE KEY-----';
 
-    	$private_key = '283b13834de77624696b80c29a2a8df0287e3cca23b26ad5fe77d9d5fed0ee90';
-    	$public_key  = '048d970d6ba29dcfa190c177140fd889fadd6d2590b1ee1a6a06e255dbf22b4017ee7bc8e1f07ed0ff8bd77c002b98d31a1a8b53a63767ca65a531fb33cd726197';
+    	$private_key = '85404c428460c1d00804041080a0ec4e0d379dd891a5ae030a68aa37c0a1f8f3';
+    	$public_key  = '1c1814ae0410002a85100d080012365c35ae8a773e864305dc503f6227eb75b49642c7b869a81b89576fc8ad005fb9ef2387c1fb43fe2f5df000ae634c686a2d4e98dd9f299694c7eccf35c9865c043431023d121501310a11';
 
     	$pem = new Pem();
     	$this->assertNotNull($pem);

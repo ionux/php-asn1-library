@@ -5,21 +5,18 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
   - hhvm
 
 before_script:
-  - wget http://getcomposer.org/composer.phar
-  - php composer.phar self-update
-  - php composer.phar install --no-interaction
+  - composer self-update
+  - composer install --no-interaction
 
 script:
   - mkdir -p build/logs
-  - phpunit tests
+  - vendor/bin/phpunit tests
 
 matrix:
   fast_finish: true
   allow_failures:
       - php: hhvm
-      - php: 7.0
-      - php: 7.1
-      - php: 7.2
