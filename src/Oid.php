@@ -3,7 +3,7 @@
  * This file is part of the PHP ASN.1 Library project. You can always find the
  * latest version of this class and project at: https://github.com/ionux/php-asn1-library
  *
- * Copyright (c) 2014-2024 Rich Morgan, rich@richmorgan.me
+ * Copyright (c) 2014-2025 Rich Morgan
  *
  * The MIT License (MIT)
  *
@@ -30,7 +30,7 @@ namespace ASN1;
 /**
  * ASN.1 Object Identifiers utility class.
  *
- * @author Rich Morgan <rich@richmorgan.me>
+ * @author Rich Morgan
  */
 final class Oid
 {
